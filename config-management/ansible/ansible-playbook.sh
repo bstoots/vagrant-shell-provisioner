@@ -9,22 +9,6 @@ else
   echo 'Argument $1 must be Ansible working directory on the guest'
   exit 1
 fi
-# inventory must be located at $ansible_working_dir/localhost.ini
-# temporary inventory will be written to ~/tmp/ansible_local/localhost.ini for portability
-if [ -f "$ansible_working_dir/localhost.ini" ]; then
-  ansible_inventory="$ansible_working_dir/localhost.ini"
-  mkdir -p ~/tmp/ansible_local/
-  ansible_inventory_tmp=~/tmp/ansible_local/localhost.ini
-  cp $ansible_inventory $ansible_inventory_tmp && chmod -x $ansible_inventory_tmp
-  if [ ! -f "$ansible_inventory_tmp" ]; then
-    echo "Temporary inventory was not written to: $ansible_inventory_tmp"
-    exit 1
-  fi
-else
-  echo "Inventory file not found at: $ansible_working_dir/localhost.ini"
-  exit 1
-fi
-
 if [ -n "$2" ]; then
   ansible_playbooks="$2"
 else
@@ -58,6 +42,6 @@ export PYTHONUNBUFFERED=1
 # show ANSI-colored output
 export ANSIBLE_FORCE_COLOR=true
 echo "Running Ansible as $USER:"
-# Have to use the inventory tmpfile here because we can't remove executable bit on Windows
-echo "ansible-playbook $ansible_playbooks --inventory-file=$ansible_inventory_tmp --connection=local ${ansible_extra_vars_file} ${ansible_options}"
-ansible-playbook ${ansible_playbooks} --inventory-file="$ansible_inventory_tmp" --connection=local ${ansible_extra_vars_file} ${ansible_options}
+# This will work in ansible >= 1.9.3 so let's roll with it
+echo "ansible-playbook $ansible_playbooks --connection=local ${ansible_extra_vars_file} ${ansible_options}"
+ansible-playbook ${ansible_playbooks} --connection=local ${ansible_extra_vars_file} ${ansible_options}
