@@ -1,3 +1,3 @@
 #!/bin/bash -e
-pip install setuptools --no-use-wheel --upgrade
+pip install setuptools --no-binary --upgrade
 pip install "$@"
